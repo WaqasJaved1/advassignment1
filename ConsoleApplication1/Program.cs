@@ -84,10 +84,13 @@ namespace ConsoleApplication1
             //getting only keys of dictionary in list
             List<string> words = dictObj.Keys.ToList();
             //sorting list
+            
             words.Sort();
             words.Remove("-");
             words.Remove("------");
+            List<string> SortedList = words.OrderBy(o => o.Length).ToList();
             end_time = DateTime.Now;
+            
             Console.Out.WriteLine("Content Read and Parsed Successfully in Time: " + Convert.ToString( end_time-start_time));
             Console.Out.WriteLine("Total Words: " + words.Count);
 
@@ -96,54 +99,78 @@ namespace ConsoleApplication1
 
             List<List<string>> link = new List<List<string>>();
             List<string> temp = new List<string>();
-            start_time = DateTime.Now;
-            int cou = 0;
 
+            int start_point = 0;
+            int start_word = 0;
+            start_time = DateTime.Now;
+            
+            for (int i = 0; i < SortedList.Count; i++)
+            {
+                temp = new List<string>();
+                temp.Add(SortedList[i]);
+                if(start_word != SortedList[i].Length){
+                    start_word = SortedList[i].Length;
+                    start_point = i;
+                }   
+                for (int j = start_point; j < SortedList.Count; j++)
+                {
+
+                    if (SortedList[i] != SortedList[j] && SortedList[i].Length == SortedList[j].Length)
+                    {
+                        if (onedifference(SortedList[i], SortedList[j]))
+                        {
+                            temp.Add(SortedList[j]);
+                            //Console.Out.WriteLine(SortedList[i] + ":" + SortedList[j] + ":");
+                        }
+                    }
+                    else if (SortedList[j].Length > SortedList[i].Length)
+                    {
+                        break;
+                    }
+                }
+                link.Add(temp);
+                //Console.Out.WriteLine(cou++ + ":" + temp.Count);
+
+            }
 
             //traverse and find links
-            foreach(var x in words){
-                //findlink(words, x, ref link);
-                bool flag = false;
-                //temp = new List<string>();
-                //temp.Add(x);
+            //foreach(var x in words){
+            //    temp = new List<string>();
+            //    temp.Add(x);
 
-                var result = from w in words
-                                 where onedifference(w, x)
-                                 select w;
+            //    //var result = from w in words
+            //    //             where onedifference(w, x)
+            //    //             select w;
                   
-                //foreach (var y in words)
-                //{
+            //    foreach (var y in words)
+            //    {
                     
-                //    if (x != y && x.Length == y.Length)
-                //    {
-                //        if (onedifference(x, y))
-                //        {
-                //            temp.Add(y);
-                //            Console.Out.WriteLine(x + ":" + y + ":");
-                //        }
-                //    }
-                //    else if (y.Length > x.Length)
-                //    {
-                //        flag = true;
-                //        break;
-                //    }
+            //        if (x != y && x.Length == y.Length)
+            //        {
+            //            if (onedifference(x, y))
+            //            {
+            //                temp.Add(y);
+            //                Console.Out.WriteLine(x + ":" + y + ":");
+            //            }
+            //        }
+            //        else if (y.Length > x.Length)
+            //        {
+            //            break;
+            //        }
 
-                //}
+            //    }
 
 
-                //foreach (var y in result)
-                //{
+            //    //foreach (var y in result)
+            //    //{
 
-                //    Console.Out.WriteLine(x+":"+y);
-                //}
+            //    //    Console.Out.WriteLine(x+":"+y);
+            //    //}
                 
-                link.Add(result.ToList());
-                if(cou%1000 == 0){
-                    Console.WriteLine(cou++);
-                };
-                cou++;
-                //temp.Clear();  
-            }
+            //    link.Add(temp);
+                
+            //    temp.Clear();  
+            //}
 
             end_time = DateTime.Now;
             Console.Out.WriteLine("Done in time: " + (end_time-start_time));
@@ -155,6 +182,9 @@ namespace ConsoleApplication1
             Console.Out.WriteLine("Total Nodes: " + count);
  
 
+            foreach(var x in link[0]){
+                Console.Out.WriteLine(link[0][0] + "->" + x);
+            }
                 //foreach(var x in words){
                 //    Console.Out.WriteLine(x);
                 //}
