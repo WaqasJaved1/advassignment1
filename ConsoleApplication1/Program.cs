@@ -13,58 +13,6 @@ namespace ConsoleApplication1
     class Program
     {
 
-        public static bool onedifference(string s1, string s2)
-        {
-            if (s1.Length == s2.Length)
-            {
-                int count = 0;
-                for (int i = 0; i < s1.Length; i++)
-                {
-                    if (count <= 1)
-                    {
-                        if (s1[i] != s2[i])
-                        {
-                            count++;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                if (count == 1)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static void findlink(List<string> words, string x, ref List<List<string>> link) {
-            List<string> temp = new List<string>();
-
-            temp.Add(x);
-            foreach (var y in words)
-            {
-
-                if (x != y && x.Length == y.Length)
-                {
-                    if (onedifference(x, y))
-                    {
-                        temp.Add(y);
-                        //Console.Out.WriteLine(x + ":" + y + ":");
-                    }
-                }
-                else if (y.Length > x.Length)
-                {
-                    break;
-                }
-            }
-
-            link.Add(temp);
-        }
-
         static void Main(string[] args)
         {
             DateTime start_time;
@@ -88,108 +36,171 @@ namespace ConsoleApplication1
             words.Sort();
             words.Remove("-");
             words.Remove("------");
+
+            //sorting list by their charachter number used for effecient linking
             List<string> SortedList = words.OrderBy(o => o.Length).ToList();
             end_time = DateTime.Now;
             
             Console.Out.WriteLine("Content Read and Parsed Successfully in Time: " + Convert.ToString( end_time-start_time));
             Console.Out.WriteLine("Total Words: " + words.Count);
 
-
             Console.Out.WriteLine("Finding links Please wait");
 
+            
+            //list of list maintaing links inside
             List<List<string>> link = new List<List<string>>();
+
+            //used to create links of word with every other word
             List<string> temp = new List<string>();
 
             int start_point = 0;
             int start_word = 0;
             start_time = DateTime.Now;
             
+            //match all words to find links
             for (int i = 0; i < SortedList.Count; i++)
             {
+                //used for breaking only for test purpose to limit linking to only n words
+                //if(start_word == 4){
+                //    break;
+                //}
+
+
                 temp = new List<string>();
+                //first word will be the checking word
                 temp.Add(SortedList[i]);
+                
+                //set start word to first word having same charchters
                 if(start_word != SortedList[i].Length){
                     start_word = SortedList[i].Length;
                     start_point = i;
                 }   
+
+                //compare with all words starting from starting point calculated above
                 for (int j = start_point; j < SortedList.Count; j++)
                 {
-
+                    //if size of both words match and they are not same word
                     if (SortedList[i] != SortedList[j] && SortedList[i].Length == SortedList[j].Length)
                     {
-                        if (onedifference(SortedList[i], SortedList[j]))
+                        //add the word to link if it has only 1 letter difference
+                        if (Utility.onedifference(SortedList[i], SortedList[j]))
                         {
                             temp.Add(SortedList[j]);
                             //Console.Out.WriteLine(SortedList[i] + ":" + SortedList[j] + ":");
                         }
-                    }
+                    }//if we reached the point where word is greater then the checking word donot check next words
                     else if (SortedList[j].Length > SortedList[i].Length)
                     {
                         break;
                     }
                 }
+                //add the finded list to link list
                 link.Add(temp);
-                //Console.Out.WriteLine(cou++ + ":" + temp.Count);
 
             }
-
-            //traverse and find links
-            //foreach(var x in words){
-            //    temp = new List<string>();
-            //    temp.Add(x);
-
-            //    //var result = from w in words
-            //    //             where onedifference(w, x)
-            //    //             select w;
-                  
-            //    foreach (var y in words)
-            //    {
-                    
-            //        if (x != y && x.Length == y.Length)
-            //        {
-            //            if (onedifference(x, y))
-            //            {
-            //                temp.Add(y);
-            //                Console.Out.WriteLine(x + ":" + y + ":");
-            //            }
-            //        }
-            //        else if (y.Length > x.Length)
-            //        {
-            //            break;
-            //        }
-
-            //    }
-
-
-            //    //foreach (var y in result)
-            //    //{
-
-            //    //    Console.Out.WriteLine(x+":"+y);
-            //    //}
-                
-            //    link.Add(temp);
-                
-            //    temp.Clear();  
-            //}
 
             end_time = DateTime.Now;
             Console.Out.WriteLine("Done in time: " + (end_time-start_time));
 
-            var count = (from w in link
-                         where w.Count >= 1
-                         select w).Count();
+            
 
-            Console.Out.WriteLine("Total Nodes: " + count);
- 
 
-            foreach(var x in link[0]){
-                Console.Out.WriteLine(link[0][0] + "->" + x);
-            }
-                //foreach(var x in words){
-                //    Console.Out.WriteLine(x);
-                //}
-                Console.In.ReadLine();
+            while (true)
+            {
 
-        }
-    }
-}
+                Console.Out.WriteLine("Press any key to continue...");
+
+                Console.ReadKey();
+                Console.Clear();
+
+                string problem_solver_level;
+                Console.Out.WriteLine("\nEnter the correponding number to perform functionality: ");
+                Console.Out.WriteLine("1->Two word problem(Shortest Distance)");
+                Console.Out.WriteLine("2->All words that dont have chain");
+                Console.Out.WriteLine("3->All words that dont have chain");
+                Console.Out.WriteLine("0->Exit");
+
+
+                problem_solver_level = Console.In.ReadLine();
+
+                if (problem_solver_level == "1")
+                {
+
+                    Utility.initialize();
+                    //two words matching
+                    Console.Out.WriteLine("Enter input word: ");
+
+                    string input = Console.ReadLine();
+
+
+                    Console.Out.WriteLine("Enter output word: ");
+
+                    string output = Console.ReadLine();
+                    if (input.Length == output.Length && Utility.isValidWord(SortedList, input) && Utility.isValidWord(SortedList, output))
+                    {
+                        var result = from w in link
+                                     where w[0].Equals(input, StringComparison.InvariantCultureIgnoreCase)
+                                     select w;
+
+                        foreach (var x in result)
+                        {
+                            Utility.check(link, x.ToList(), output, new List<string>(), new List<string>());
+
+                            if (Utility.solutionFound())
+                            {
+
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!Utility.isValidWord(SortedList, input))
+                        {
+                            Console.Out.WriteLine(input + " is not a valid word in dictionary.");
+                        }
+                        else if (!Utility.isValidWord(SortedList, output))
+                        {
+                            Console.Out.WriteLine(output + " is not a valid word in dictionary.");
+                        }
+                        else
+                        {
+                            Console.Out.WriteLine("Solution not Possible valid word in dictionary.");
+                        }
+                    }
+                    Console.WriteLine("Compiled");
+
+                }//end case 1
+                else if (problem_solver_level == "2")
+                {
+                    Console.WriteLine("Finding out all the words that do not have a chain....");
+                    //count total nodes having some links
+                    var count = from w in link
+                                 where w.Count == 1
+                                 select w;
+
+                    Console.Out.WriteLine("Total Nodes: " + (count.Count()));
+                    Console.Out.WriteLine("Writing All Words to File Please Wait.... ");
+
+                    StreamWriter sw = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\No_links.txt");
+                    sw.WriteLine("Total Words: " + (link.Count() - count.Count()));
+                    foreach(var x in count){
+                        sw.WriteLine(x[0]);
+                    }
+                    sw.Close();
+
+                    Console.Out.WriteLine("File saved in My documents as No_links.txt");
+                    
+
+
+                }
+                else
+                {
+                    break;//exit
+                }
+
+                
+            }//while loop exit
+            
+        }//main exit
+    }//class exit
+}//namespace exit
