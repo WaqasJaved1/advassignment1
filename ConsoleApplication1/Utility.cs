@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace ConsoleApplication1
 {
@@ -14,6 +15,8 @@ namespace ConsoleApplication1
         List<string> largest;
 
         List<List<string>> all;
+
+
 
         public static void initialize()
         {
@@ -99,6 +102,9 @@ namespace ConsoleApplication1
 
         public static void check(List<List<string>> links, List<string> list, string end, List<string> path, List<string> discovered)
         {
+            Task[] t = new Task[list.Count];
+
+            
             if (matchat != 0 && matchat <= path.Count)
             {
                 return;
@@ -121,18 +127,22 @@ namespace ConsoleApplication1
                 {
                     if (list[i].Equals(end, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        path.Add(end);
-                        matchat = path.Count;
-
-                        Console.Out.Write("\n-------------------------\n");
-
-                        foreach (var path_i in path)
+                        if (matchat == 0 || matchat > (path.Count+1))
                         {
-                            Console.Out.Write(path_i + "->");
-                        }
-                        Console.Out.Write("\n-------------------------\n");
+                            path.Add(end);
+                            matchat = path.Count;
 
-                        Console.Out.Write("\nTotal Nodes in path: " + path.Count + "\n-------------------------\n");
+                            Console.Out.Write("\n-------------------------\n");
+
+                            foreach (var path_i in path)
+                            {
+                                Console.Out.Write(path_i + "->");
+                            }
+                            Console.Out.Write("\n-------------------------\n");
+
+                            Console.Out.Write("\nTotal Nodes in path: " + path.Count + "\n-------------------------\n");
+                            return;
+                        }
                     }
                     else
                     {
@@ -142,16 +152,35 @@ namespace ConsoleApplication1
 
                         foreach (var y in result)
                         {
+                            if (matchat != 0 && matchat <= path.Count)
+                            {
+                                return;
+                            }
                             if (y.ToList().Count > 1)
                             {
-                                check(links, y.ToList(), end, new List<string>(path), new List<string>(discovered));
+
+                                t[i] = new Task(() => check(links, y.ToList(), end, new List<string>(path), new List<string>(discovered)));
+                                t[i].Start();
+
+                                //check(links, y.ToList(), end, new List<string>(path), new List<string>(discovered));
                             }
                         }
+
                     }
                 }
 
 
             }
+
+            try
+            {
+                Task.WaitAll(t);
+            }
+            catch
+            {
+                //Console.WriteLine("\n++++++++++++++++++++++++++++++++++++++\n{0}");
+            }
+            return;
         }
 
 

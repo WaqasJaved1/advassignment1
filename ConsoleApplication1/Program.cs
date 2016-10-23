@@ -61,11 +61,9 @@ namespace ConsoleApplication1
             for (int i = 0; i < SortedList.Count; i++)
             {
                 //used for breaking only for test purpose to limit linking to only n words
-                //if(start_word == 4){
-                //    break;
-                //}
-
-
+                if(start_word == 5){
+                    break;
+                }
                 temp = new List<string>();
                 //first word will be the checking word
                 temp.Add(SortedList[i]);
@@ -126,7 +124,7 @@ namespace ConsoleApplication1
                 if (problem_solver_level == "1")
                 {
 
-                    Utility.initialize();
+                    
                     //two words matching
                     Console.Out.WriteLine("Enter input word: ");
 
@@ -136,6 +134,8 @@ namespace ConsoleApplication1
                     Console.Out.WriteLine("Enter output word: ");
 
                     string output = Console.ReadLine();
+
+                    Utility.initialize();
                     if (input.Length == output.Length && Utility.isValidWord(SortedList, input) && Utility.isValidWord(SortedList, output))
                     {
                         var result = from w in link
@@ -145,10 +145,11 @@ namespace ConsoleApplication1
                         foreach (var x in result)
                         {
                             Utility.check(link, x.ToList(), output, new List<string>(), new List<string>());
+                            Task.WaitAll();
 
-                            if (Utility.solutionFound())
+                            if (!Utility.solutionFound())
                             {
-
+                                Console.WriteLine("No Solution Possible");
                             }
                         }
                     }
