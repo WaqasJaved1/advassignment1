@@ -208,7 +208,7 @@ namespace ConsoleApplication1
                 }
                 else if (problem_solver_level == "3")
                 {
-
+                    start_time = DateTime.Now;
                     Console.Out.WriteLine("Finding Please wait.....");
 
 
@@ -255,9 +255,13 @@ namespace ConsoleApplication1
                         }
                     }//end for
 
+                    end_time = DateTime.Now;
+
+
                     Console.Clear();
 
                     Console.WriteLine("Statistics: ");
+                    Console.Out.WriteLine("Done in time: " + (end_time - start_time));
                     
                     var shortest = from src in all_paths
                                    where src.Count == all_paths.Min(t => t.Count)
@@ -277,13 +281,31 @@ namespace ConsoleApplication1
                     dt.Columns.Add("Name", typeof(string));
                     dt.Columns.Add("Counter", typeof(int));
 
-                    int counter = 0;
+                    var count = from w in link
+                                 where w.Count == 1
+                                 select w;
+                    int c;
+                    DataRow r1 = dt.NewRow();
+                    r1[0] = "No chain";
+                    if(count.Count()!=0){
+                        r1[1] = count.First();
+                        c = link.Count() - count.Count();
+                    }
+                    else
+                    {
+                        r1[1] = 0;
+                        c = 0;
+                    }
+                    
+                    
                     foreach(var f in frequency){
                         DataRow r = dt.NewRow();
                         r[0] = f.Key;
                         r[1] = f.Count();
                         dt.Rows.Add(r);
                     }
+
+
                     dataSet.Tables.Add(dt);
 
                     //prepare chart control...
@@ -323,7 +345,12 @@ namespace ConsoleApplication1
                     chart.DataBind();
                     //save result...
                     chart.SaveImage(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\Chart.png" , ChartImageFormat.Png);
-                    //CHART
+                    //end CHART
+
+                    
+
+                    Console.WriteLine("Total words with no chain:n " + c);
+
                     Console.WriteLine("Smallest chain");
                     Utility.printPath(shortest.FirstOrDefault());
 
