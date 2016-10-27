@@ -4,32 +4,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 namespace ConsoleApplication1
 {
     class Utility
     {
-        static int matchat = 0;
+        public static void printPath(List<string> path){
+            Console.WriteLine("\n--------------------------------------------------------\n");
 
-        List<string> shortest;
-        List<string> largest;
+            Console.WriteLine("Path Nodes : " + path.Count);
 
-        List<List<string>> all;
+                        if (path.Count != 0)
+                        {
+                            foreach (var chain in path)
+                            {
+                                Console.Write(chain);
 
+                                if (!chain.Equals(path.Last(), StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    Console.Write("->");
+                                }
+                            }
+                        }
 
-
-        public static void initialize()
-        {
-            matchat = 0;
-        }
-
-
-        public static bool solutionFound() { 
-            if(matchat == 0){
-                return false;
-            }
-
-            return true;
+                        Console.WriteLine("\n--------------------------------------------------------\n");
         }
         public static bool onedifference(string s1, string s2)
         {
@@ -61,31 +60,7 @@ namespace ConsoleApplication1
             return false;
         }
 
-        public static void findlink(List<string> words, string x, ref List<List<string>> link)
-        {
-            List<string> temp = new List<string>();
-
-            temp.Add(x);
-            foreach (var y in words)
-            {
-
-                if (x != y && x.Length == y.Length)
-                {
-                    if (onedifference(x, y))
-                    {
-                        temp.Add(y);
-                        //Console.Out.WriteLine(x + ":" + y + ":");
-                    }
-                }
-                else if (y.Length > x.Length)
-                {
-                    break;
-                }
-            }
-
-            link.Add(temp);
-        }
-            
+        
         public static bool isValidWord(List<string> words, string word)
         {
             word = word.ToUpper();
@@ -100,89 +75,51 @@ namespace ConsoleApplication1
             return false;
         }
 
-        public static void check(List<List<string>> links, List<string> list, string end, List<string> path, List<string> discovered)
+
+        public static List<string> bfs(List<List<string>> links, List<string> start,string end)
         {
-            Task[] t = new Task[list.Count];
-
+            List<string> discovered = new List<string>();
+            List<string> path = new List<string>();
+            Queue<List<string>> temp = new Queue<List<string>>();
             
-            if (matchat != 0 && matchat <= path.Count)
-            {
-                return;
-            }
+            temp.Enqueue(start);
 
-            discovered.Add(list[0]);
-            path.Add(list[0]);
-            for (int i = 1; i < list.Count; i++)
-            {
-                if (matchat != 0 && matchat <= path.Count)
+
+            string currentNode;
+            while(temp.Count != 0){
+
+                path = new List<string>(temp.Dequeue());
+
+                currentNode = path.Last();
+
+                if (currentNode.Equals(end, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    return;
+                    return path;
                 }
-
-                var test1 = (from disc in discovered
-                             where disc == list[i]
-                             select disc).Count();
-
-                if (test1 == 0)
+                else if (!discovered.Any(cus => cus.Equals( currentNode, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    if (list[i].Equals(end, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        if (matchat == 0 || matchat > (path.Count+1))
-                        {
-                            path.Add(end);
-                            matchat = path.Count;
+                    discovered.Add(currentNode);
 
-                            Console.Out.Write("\n-------------------------\n");
+                    var result = from adj in links
+                                   where adj[0].Equals(currentNode, StringComparison.InvariantCultureIgnoreCase)
+                                   select adj;
 
-                            foreach (var path_i in path)
-                            {
-                                Console.Out.Write(path_i + "->");
-                            }
-                            Console.Out.Write("\n-------------------------\n");
 
-                            Console.Out.Write("\nTotal Nodes in path: " + path.Count + "\n-------------------------\n");
-                            return;
-                        }
+                    List<string> adjecent = new List<string>(result.First());
+                    adjecent.Remove(currentNode.ToUpper());
+
+                    foreach(var n in adjecent){
+                        List<string> newPath = new List<string>(path);
+                        newPath.Add(n);
+                        temp.Enqueue(newPath);
                     }
-                    else
-                    {
-                        var result = from w in links
-                                     where w[0].Equals(list[i], StringComparison.InvariantCultureIgnoreCase)
-                                     select w;
 
-                        foreach (var y in result)
-                        {
-                            if (matchat != 0 && matchat <= path.Count)
-                            {
-                                return;
-                            }
-                            if (y.ToList().Count > 1)
-                            {
 
-                                t[i] = new Task(() => check(links, y.ToList(), end, new List<string>(path), new List<string>(discovered)));
-                                t[i].Start();
-
-                                //check(links, y.ToList(), end, new List<string>(path), new List<string>(discovered));
-                            }
-                        }
-
-                    }
                 }
-
-
             }
 
-            try
-            {
-                Task.WaitAll(t);
-            }
-            catch
-            {
-                //Console.WriteLine("\n++++++++++++++++++++++++++++++++++++++\n{0}");
-            }
-            return;
+            return new List<string>();
         }
-
 
     }
 }
